@@ -10,6 +10,41 @@ function App() {
     ['wall', 'wall', 'path', 'end']
   ]
 
+  function bfs(startNode) {
+    let queue = [startNode];
+    let visited = new Set(`${start[0]} ${start[1]}`)
+
+    function visitCell([x, y]) {
+      console.log(x, y)
+    }
+
+    function step() {
+      if (queue.length === 0) {
+        return
+      }
+
+
+      const [x, y] = queue.shift()
+      console.log('step')
+
+      const dirs = [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0]
+      ];
+
+      for (const [dx, dy] of dirs) {
+        nx = x + dx
+        ny = y + dy
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height && !visited.has(`${nx}, ${ny}`)) {
+          visited.add(`${nx}, ${ny}`)
+        }
+      }
+    }
+    step()
+  }
+
   const [maze, setMaze] = useState([initialMaze])
 
   function generateMaze(height, width) {
