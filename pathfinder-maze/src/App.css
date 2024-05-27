@@ -10,6 +10,12 @@ body{
   height: 100vh;
 }
 
+.controls{
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+
 .maze-button{
   background-color: rgb(94, 94, 223);
   margin: 10px;

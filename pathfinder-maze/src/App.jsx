@@ -10,12 +10,20 @@ function App() {
     ['wall', 'wall', 'path', 'end']
   ]
 
+  const [width, setWidth] = useState(initialMaze[0].length)
+  const [height, setHeight] = useState(initialMaze.length)
+
+  // BFS PART
   function bfs(startNode) {
     let queue = [startNode];
-    let visited = new Set(`${start[0]} ${start[1]}`)
+    let visited = new Set(`${startNode[0]} ${startNode[1]}`)
 
     function visitCell([x, y]) {
-      console.log(x, y)
+      if (maze[y][x] === "end") {
+        console.log('path found');
+        return true;
+      }
+      return false
     }
 
     function step() {
@@ -35,16 +43,75 @@ function App() {
       ];
 
       for (const [dx, dy] of dirs) {
-        nx = x + dx
-        ny = y + dy
+        const nx = x + dx
+        const ny = y + dy
         if (nx >= 0 && nx < width && ny >= 0 && ny < height && !visited.has(`${nx}, ${ny}`)) {
           visited.add(`${nx}, ${ny}`)
+          if (maze[ny][nx] === 'path' || maze[ny][nx] === 'end') {
+            if (visitCell([nx, ny])) {
+              return true;
+            }
+            queue.push([nx, ny])
+          }
+
         }
       }
+      step()
     }
     step()
+    return false
   }
 
+  // DFS PART
+  function dfs(startNode) {
+    let stack = [startNode];
+    let visited = new Set(`${startNode[0]} ${startNode[1]}`)
+
+    function visitCell([x, y]) {
+      if (maze[y][x] === "end") {
+        console.log('path found');
+        return true;
+      }
+      return false
+    }
+
+    function step() {
+      if (stack.length === 0) {
+        return
+      }
+
+
+      const [x, y] = stack.pop()
+      console.log('step')
+
+      const dirs = [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0]
+      ];
+
+      for (const [dx, dy] of dirs) {
+        const nx = x + dx
+        const ny = y + dy
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height && !visited.has(`${nx}, ${ny}`)) {
+          visited.add(`${nx}, ${ny}`)
+          if (maze[ny][nx] === 'path' || maze[ny][nx] === 'end') {
+            if (visitCell([nx, ny])) {
+              return true;
+            }
+            stack.push([nx, ny])
+          }
+
+        }
+      }
+      step()
+    }
+    step()
+    return false
+  }
+
+  // MAZE GENERATION
   const [maze, setMaze] = useState([initialMaze])
 
   function generateMaze(height, width) {
@@ -90,13 +157,21 @@ function App() {
 
     matrix[1][0] = "start"
     matrix[height - 2][width - 1] = "end"
-
+    setHeight(matrix.length)
+    setWidth(matrix[0].length)
     setMaze(matrix)
   }
 
   return (
     <div className="maze-grid">
-      <button className={"maze-button"} onClick={() => generateMaze(10, 10)}>Refresh Maze</button>
+
+      <div className="controls">
+
+        <button className={"maze-button"} onClick={() => generateMaze(10, 10)}>Refresh Maze</button>
+        <button className={"maze-button"} onClick={() => bfs([1, 0])}>Breadth-First Search</button>
+        <button className={"maze-button"} onClick={() => dfs([1, 0])}>Depth-First Search</button>
+      </div>
+
       <div className={"maze"}>
         {maze.map((row, rowIndex) => (
           <div className="row">
