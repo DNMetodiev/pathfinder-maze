@@ -50,6 +50,10 @@ body{
   background-color: black;
 }
 
+.cell.visited{
+  background-color: lightblue;
+}
+
 .cell.path{
   background-color: white;
 }

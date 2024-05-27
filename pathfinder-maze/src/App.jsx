@@ -1,17 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css"
 
-function App() {
+// eslint-disable-next-line react/prop-types
+function App({ width = 20, height = 20 }) {
 
-  let initialMaze = [
-    ['wall', 'wall', 'wall', 'wall'],
-    ['start', 'path', 'path', 'wall'],
-    ['wall', 'wall', 'path', 'wall'],
-    ['wall', 'wall', 'path', 'end']
-  ]
+  const [maze, setMaze] = useState([])
+  const [timeoutIds, setTimeoutIds] = useState([])
 
-  const [width, setWidth] = useState(initialMaze[0].length)
-  const [height, setHeight] = useState(initialMaze.length)
+  useEffect((() => {
+    generateMaze(width, height)
+  }), [])
 
   // BFS PART
   function bfs(startNode) {
@@ -19,6 +17,16 @@ function App() {
     let visited = new Set(`${startNode[0]} ${startNode[1]}`)
 
     function visitCell([x, y]) {
+
+      setMaze((prevMaze) => prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (rowIndex === y && cellIndex === x) {
+            return cell === 'end' ? 'end' : "visited"
+          }
+          return cell
+        })
+      ))
+
       if (maze[y][x] === "end") {
         console.log('path found');
         return true;
@@ -56,7 +64,8 @@ function App() {
 
         }
       }
-      step()
+      const timeoutId = setTimeout(step, 100)
+      setTimeoutIds((previousTimeoutIds) => [...previousTimeoutIds, timeoutId])
     }
     step()
     return false
@@ -68,6 +77,14 @@ function App() {
     let visited = new Set(`${startNode[0]} ${startNode[1]}`)
 
     function visitCell([x, y]) {
+      setMaze((prevMaze) => prevMaze.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => {
+          if (rowIndex === y && cellIndex === x) {
+            return cell === 'end' ? 'end' : "visited"
+          }
+          return cell
+        })
+      ))
       if (maze[y][x] === "end") {
         console.log('path found');
         return true;
@@ -105,14 +122,14 @@ function App() {
 
         }
       }
-      step()
+      const timeoutId = setTimeout(step, 100)
+      setTimeoutIds((previousTimeoutIds) => [...previousTimeoutIds, timeoutId])
     }
     step()
     return false
   }
 
   // MAZE GENERATION
-  const [maze, setMaze] = useState([initialMaze])
 
   function generateMaze(height, width) {
     let matrix = [];
@@ -157,9 +174,13 @@ function App() {
 
     matrix[1][0] = "start"
     matrix[height - 2][width - 1] = "end"
-    setHeight(matrix.length)
-    setWidth(matrix[0].length)
     setMaze(matrix)
+  }
+
+  function refreshMaze() {
+    timeoutIds.forEach(clearTimeout)
+    setTimeoutIds([])
+    generateMaze(20, 20)
   }
 
   return (
@@ -167,7 +188,7 @@ function App() {
 
       <div className="controls">
 
-        <button className={"maze-button"} onClick={() => generateMaze(10, 10)}>Refresh Maze</button>
+        <button className={"maze-button"} onClick={() => refreshMaze()}>Refresh Maze</button>
         <button className={"maze-button"} onClick={() => bfs([1, 0])}>Breadth-First Search</button>
         <button className={"maze-button"} onClick={() => dfs([1, 0])}>Depth-First Search</button>
       </div>
